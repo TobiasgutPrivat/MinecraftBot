@@ -2,13 +2,21 @@
   "name": "minecraftbot",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "mineflayer": "^4.23.0"
+    "@types/node": "^22.10.5",
+    "js-yaml": "^4.1.0",
+    "mineflayer": "^4.23.0",
+    "mineflayer-pathfinder": "^2.4.5",
+    "prismarine-viewer": "^1.28.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
   }
 }
