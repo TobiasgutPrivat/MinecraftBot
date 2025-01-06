@@ -1,16 +1,12 @@
 import mineflayer from "mineflayer";
 
 import {pathfinder} from "mineflayer-pathfinder";
-import {Movements, goals} from "mineflayer-pathfinder";
 
-import {mineflayer as mineflayerViewer} from 'prismarine-viewer';
+import {Movements, goals} from "mineflayer-pathfinder";
 const {GoalFollow} = goals
 
-// import yaml from "js-yaml";
-
-// const settings = yaml.load(require('fs').readFileSync('./settings.yml', 'utf8'));
-
 export default class Bot {
+    // currentaction: Action
     constructor(name: string) {
         const bot = mineflayer.createBot({
             username: name
@@ -20,27 +16,26 @@ export default class Bot {
 
         bot.once('spawn', () => {
             bot.chat("Hello World")
-            const defaultMove = new Movements(bot)
+            // const defaultMove = new Movements(bot)
 
-            bot.on('chat', (username, message) => {
-                if (username === bot.username) return
-                if (message !== 'come') return
+            // bot.on('chat', (username, message) => {
+            //     if (username === bot.username) return
+            //     if (message !== 'come') return
 
-                const target = bot.players[username]?.entity
-                if (!target) {
-                    bot.chat("I don't see you !")
-                return
-                }
+            //     const target = bot.players[username]?.entity
+            //     if (!target) {
+            //         bot.chat("I don't see you !")
+            //     return
+            //     }
 
-                bot.pathfinder.setMovements(defaultMove)
-                bot.pathfinder.setGoal(new GoalFollow(target, 1))
-            });
+            //     bot.pathfinder.setMovements(defaultMove)
+            //     bot.pathfinder.setGoal(new GoalFollow(target, 1))
+            // });
 
-            mineflayerViewer(bot, { port: 3007, firstPerson: false })
-            // bot.on('kicked', (username, reason) => {
-            //     bot.emit('')
-            //     bot.chat(`Kicked by ${username} for ${reason}`)
-            // })
+        })
+
+        bot.on('physicTick', () => {
+            //my game loop
         })
     }
 }
