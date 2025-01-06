@@ -2,6 +2,8 @@ import mineflayer from "mineflayer";
 
 import {pathfinder} from "mineflayer-pathfinder";
 import {Movements, goals} from "mineflayer-pathfinder";
+
+import {mineflayer as mineflayerViewer} from 'prismarine-viewer';
 const {GoalFollow} = goals
 
 // import yaml from "js-yaml";
@@ -23,6 +25,7 @@ export default class Bot {
             bot.on('chat', (username, message) => {
                 if (username === bot.username) return
                 if (message !== 'come') return
+
                 const target = bot.players[username]?.entity
                 if (!target) {
                     bot.chat("I don't see you !")
@@ -33,8 +36,9 @@ export default class Bot {
                 bot.pathfinder.setGoal(new GoalFollow(target, 1))
             });
 
+            mineflayerViewer(bot, { port: 3007, firstPerson: false })
             // bot.on('kicked', (username, reason) => {
-            //     bot.()
+            //     bot.emit('')
             //     bot.chat(`Kicked by ${username} for ${reason}`)
             // })
         })

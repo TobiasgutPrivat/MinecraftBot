@@ -1,4 +1,0 @@
-defaultConnection:
-  host: 'localhost'
-  port: 25565
-  username: 'Steve'
