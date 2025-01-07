@@ -3,39 +3,54 @@ import mineflayer from "mineflayer";
 import {pathfinder} from "mineflayer-pathfinder";
 
 import {Movements, goals} from "mineflayer-pathfinder";
+import Action from "./action";
 const {GoalFollow} = goals
 
 export default class Bot {
-    // currentaction: Action
+    currentaction?: Action = undefined
+    bot: mineflayer.Bot
     constructor(name: string) {
-        const bot = mineflayer.createBot({
+        this.bot = mineflayer.createBot({
             username: name
         });
 
-        bot.loadPlugin(pathfinder);
 
-        bot.once('spawn', () => {
-            bot.chat("Hello World")
-            // const defaultMove = new Movements(bot)
+        this.bot.loadPlugin(pathfinder); //enable pathfinder plugin
+        this.bot.pathfinder.setMovements(new Movements(this.bot));
 
-            // bot.on('chat', (username, message) => {
-            //     if (username === bot.username) return
-            //     if (message !== 'come') return
-
-            //     const target = bot.players[username]?.entity
-            //     if (!target) {
-            //         bot.chat("I don't see you !")
-            //     return
-            //     }
-
-            //     bot.pathfinder.setMovements(defaultMove)
-            //     bot.pathfinder.setGoal(new GoalFollow(target, 1))
-            // });
-
+        this.bot.once('spawn', () => {
+            this.bot.chat("Hello World")
         })
 
-        bot.on('physicTick', () => {
-            //my game loop
+        this.bot.on('physicTick', () => {
+            this.ReEvaluateActions()
         })
     }
+
+    ReEvaluateActions() {
+        const actiontorun = this.getActionTorun()
+        if (actiontorun) {
+            this.applyAction(actiontorun)
+        }
+    }
+
+    applyAction(action: Action) {
+        if (this.currentaction === action) return
+
+        if (this.currentaction) {
+            if (this.currentaction?.isActive()) {
+                this.bot.chat("Aborting current action")
+                this.currentaction.cancel()
+            }
+        }
+
+        this.currentaction = action
+        this.bot.chat("Starting new action")
+    }
+
+    getActionTorun() : Action | undefined {
+        //evaluate what action to run$
+        return undefined
+    }
+
 }
