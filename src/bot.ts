@@ -2,12 +2,11 @@ import mineflayer from "mineflayer";
 import { pathfinder, Movements } from "mineflayer-pathfinder";
 
 import { Action } from "./action";
-import { Requirement } from "./requirement";
 
 export default class Bot {
-    private currentaction?: Action
+    private currentAction?: Action
     bot: mineflayer.Bot
-    private goals: Requirement[] //requirements are like goals (something to achieve, possible through certain actions)
+    private goals: Action[] //requirements are like goals (something to achieve, possible through certain actions)
 
     constructor(name: string) {
         this.bot = mineflayer.createBot({
@@ -39,53 +38,64 @@ export default class Bot {
         this.goals = []
     }
 
-    addGoal(goal: Requirement) {
+    addGoal(goal: Action) {
         this.goals.push(goal)
     }
 
     private ReEvaluateActions() {
         //remove completed actions
-        if (this.currentaction?.isCompleted(this.bot)) {
-            this.currentaction = undefined
+        if (this.currentAction?.isCompleted(this.bot)) {
+            this.currentAction = undefined
             this.bot.chat("Completed current action")
         }
 
         //remove satisfied goals
-        const satisfiedGoals: Requirement[] = this.goals.filter((goal) => goal.isSatisfied(this.bot))
+        const satisfiedGoals: Action[] = this.goals.filter((goal) => goal.isCompleted(this.bot))
         for (const goal of satisfiedGoals) {
             this.goals.splice(this.goals.indexOf(goal), 1) //TODO log goals
             this.bot.chat("Completed goal")
         }
 
         //get action to run
-        const actiontorun = this.getActionTorun()
-        if (actiontorun) {
-            this.applyAction(actiontorun)
+        const actionToRun = this.getActionToRun()
+        if (actionToRun) {
+            this.applyAction(actionToRun)
         } else {
             // this.bot.chat("No action to run")
         }
     }
 
     private applyAction(action: Action) {
-        if (this.currentaction === action) return
+        if (this.currentAction === action) return
 
-        if (this.currentaction) {
-            if (this.currentaction?.isActive(this.bot)) {
-                this.currentaction.cancel(this.bot)
+        if (this.currentAction) {
+            if (this.currentAction?.isActive(this.bot)) {
+                this.currentAction.cancel(this.bot)
                 this.bot.chat("Aborting current action")
             }
             //TODO log Action
         }
 
-        this.currentaction = action
+        this.currentAction = action
         this.bot.chat("Starting new action")
-        this.currentaction.run(this.bot)
+        this.currentAction.run(this.bot)
     }
 
-    private getActionTorun(): Action | undefined {
-        const requiredActions: Action[] = this.goals.flatMap((goal) => goal.getRequiredActions(this.bot))
+    private getActionToRun(): Action | undefined {
+        const requiredActions: Action[] = this.getRequiredActions(this.goals, this.bot)
         //TODO evaluate what action to run
         return requiredActions[0]
     }
 
+    private getRequiredActions(actions: Action[], bot: mineflayer.Bot): Action[] {
+        const actionsToDo = actions
+            .filter((req) => !req.isCompleted(bot));
+
+        return actionsToDo
+            .filter((req) => req.isRunnable(bot))
+            .concat(...actionsToDo
+                .filter((req) => !req.isRunnable(bot))
+                .map((req) => this.getRequiredActions(req.actions, bot))
+            )
+    }
 }

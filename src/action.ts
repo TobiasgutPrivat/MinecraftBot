@@ -1,22 +1,15 @@
 import mineflayer from "mineflayer";
-import { Requirement } from "./requirement";
 
 export abstract class Action {
-    requirements: Requirement[]
+    actions: Action[]
 
-    constructor(requirements?: Requirement[]) {
-        this.requirements = requirements ? requirements : []
+    constructor(action?: Action[]) {
+        this.actions = action ? action : []
     }
 
     isRunnable(bot: mineflayer.Bot): boolean {
-        return this.requirements.every((req) => req.isSatisfied(bot))
+        return this.actions.every((req) => req.isCompleted(bot))
     };
-
-    getRequiredActions(bot: mineflayer.Bot): Action[] {
-        return this.requirements
-            .filter((req) => !req.isSatisfied(bot))
-            .flatMap((req) => req.getRequiredActions(bot));
-    }
 
     abstract run(bot: mineflayer.Bot, finishcallback?: () => void): void;
     abstract cancel(bot: mineflayer.Bot): void;
