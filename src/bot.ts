@@ -1,8 +1,8 @@
 import mineflayer from "mineflayer";
 import {pathfinder, Movements} from "mineflayer-pathfinder";
 
-import Action from "./action";
-import Requirement from "./requirement";
+import {Action} from "./action";
+import {Requirement} from "./requirement";
 
 export default class Bot {
     private currentaction?: Action

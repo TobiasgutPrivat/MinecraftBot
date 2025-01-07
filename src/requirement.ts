@@ -1,7 +1,7 @@
 import mineflayer from "mineflayer";
-import Action from "./action";
+import {Action,SayMessage} from "./action";
 
-export default abstract class Requirement {
+export abstract class Requirement {
     bot : mineflayer.Bot
     actions : Action[]; //repressents ways to satisfy the requirement
 
@@ -27,5 +27,17 @@ export default abstract class Requirement {
         }
 
         return runnableActions;
+    }
+}
+
+export class HasSaidMessage extends Requirement {
+    constructor(bot: mineflayer.Bot, message: string) {
+        super(bot)
+        this.actions = [new SayMessage(bot, message)]
+    }
+
+    isSatisfied(): boolean {
+        //check if steve has said hello
+        return this.actions[0].isCompleted()
     }
 }

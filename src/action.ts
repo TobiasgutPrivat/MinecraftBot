@@ -1,7 +1,7 @@
 import mineflayer from "mineflayer";
-import Requirement from "./requirement";
+import {Requirement} from "./requirement";
 
-export default abstract class Action {
+export abstract class Action {
     bot : mineflayer.Bot
     requirements : Requirement[]
 
@@ -24,4 +24,28 @@ export default abstract class Action {
     abstract cancel() : void;
     abstract isActive() : boolean;
     abstract isCompleted() : boolean;
+}
+
+export class SayMessage extends Action {
+    completed : boolean = false
+    message : string
+    constructor(bot: mineflayer.Bot, message: string) {
+        super(bot)
+        this.message = message
+    }
+
+    run(finishcallback?: () => void) {
+        this.bot.chat(this.message)
+        this.completed = true
+        finishcallback?.()
+    }
+    cancel(): void {
+        
+    }
+    isActive(): boolean {
+        return false
+    }
+    isCompleted(): boolean {
+        return this.completed;
+    }
 }
