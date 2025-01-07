@@ -15,7 +15,7 @@ export default class Bot {
             // default settings
             // host: "127.0.0.1",
             // port: 25565,
-            // auth: None,
+            // auth: 'offline',
         });
 
         this.bot.loadPlugin(pathfinder); // enable pathfinder plugin
@@ -32,6 +32,10 @@ export default class Bot {
             this.ReEvaluateActions()
         })
 
+        this.bot.on('kicked', () => {
+            this.bot.connect({username: name})
+        })
+
         this.goals = []
     }
 
@@ -40,8 +44,14 @@ export default class Bot {
     }
 
     private ReEvaluateActions() {
+        //remove completed actions
+        if (this.currentaction?.isCompleted(this.bot)) {
+            this.currentaction = undefined
+            this.bot.chat("Completed current action")
+        }
+
         //remove satisfied goals
-        const satisfiedGoals : Requirement[] = this.goals.filter((goal) => goal.isSatisfied())
+        const satisfiedGoals : Requirement[] = this.goals.filter((goal) => goal.isSatisfied(this.bot))
         for (const goal of satisfiedGoals) {
             this.goals.splice(this.goals.indexOf(goal), 1) //TODO log goals
             this.bot.chat("Completed goal")
@@ -60,8 +70,8 @@ export default class Bot {
         if (this.currentaction === action) return
 
         if (this.currentaction) {
-            if (this.currentaction?.isActive()) {
-                this.currentaction.cancel()
+            if (this.currentaction?.isActive(this.bot)) {
+                this.currentaction.cancel(this.bot)
                 this.bot.chat("Aborting current action")
             }
             //TODO log Action
@@ -69,11 +79,11 @@ export default class Bot {
 
         this.currentaction = action
         this.bot.chat("Starting new action")
-        this.currentaction.run()
+        this.currentaction.run(this.bot)
     }
 
     private getActionTorun() : Action | undefined {
-        const requiredActions : Action[] = this.goals.flatMap((goal) => goal.getRequiredActions())
+        const requiredActions : Action[] = this.goals.flatMap((goal) => goal.getRequiredActions(this.bot))
         //TODO evaluate what action to run
         return requiredActions[0]
     }

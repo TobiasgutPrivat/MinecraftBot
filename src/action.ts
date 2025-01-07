@@ -2,50 +2,48 @@ import mineflayer from "mineflayer";
 import {Requirement} from "./requirement";
 
 export abstract class Action {
-    bot : mineflayer.Bot
     requirements : Requirement[]
 
-    constructor(bot: mineflayer.Bot, requirements?: Requirement[]) {
-        this.bot = bot
+    constructor(requirements?: Requirement[]) {
         this.requirements = requirements ? requirements : []
     }
 
-    isRunnable() : boolean {
-        return this.requirements.every((req) => req.isSatisfied())    
+    isRunnable(bot: mineflayer.Bot) : boolean {
+        return this.requirements.every((req) => req.isSatisfied(bot))    
     };
 
-    getRequiredActions(): Action[] {
+    getRequiredActions(bot: mineflayer.Bot): Action[] {
         return this.requirements
-            .filter((req) => !req.isSatisfied())
-            .flatMap((req) => req.getRequiredActions());
+            .filter((req) => !req.isSatisfied(bot))
+            .flatMap((req) => req.getRequiredActions(bot));
     }
 
-    abstract run(finishcallback?: () => void) : void;
-    abstract cancel() : void;
-    abstract isActive() : boolean;
-    abstract isCompleted() : boolean;
+    abstract run(bot: mineflayer.Bot,finishcallback?: () => void) : void;
+    abstract cancel(bot: mineflayer.Bot) : void;
+    abstract isActive(bot: mineflayer.Bot) : boolean;
+    abstract isCompleted(bot: mineflayer.Bot) : boolean;
 }
 
 export class SayMessage extends Action {
     completed : boolean = false
     message : string
-    constructor(bot: mineflayer.Bot, message: string) {
-        super(bot)
+    constructor(message: string) {
+        super()
         this.message = message
     }
 
-    run(finishcallback?: () => void) {
-        this.bot.chat(this.message)
+    run(bot: mineflayer.Bot,finishcallback?: () => void) {
+        bot.chat(this.message)
         this.completed = true
         finishcallback?.()
     }
-    cancel(): void {
+    cancel(bot: mineflayer.Bot): void {
         
     }
-    isActive(): boolean {
+    isActive(bot: mineflayer.Bot): boolean {
         return false
     }
-    isCompleted(): boolean {
+    isCompleted(bot: mineflayer.Bot): boolean {
         return this.completed;
     }
 }
