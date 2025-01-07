@@ -1,8 +1,8 @@
 import mineflayer from "mineflayer";
-import {pathfinder, Movements} from "mineflayer-pathfinder";
+import { pathfinder, Movements } from "mineflayer-pathfinder";
 
-import {Action} from "./action";
-import {Requirement} from "./requirement";
+import { Action } from "./action";
+import { Requirement } from "./requirement";
 
 export default class Bot {
     private currentaction?: Action
@@ -33,7 +33,7 @@ export default class Bot {
         })
 
         this.bot.on('kicked', () => {
-            this.bot.connect({username: name})
+            this.bot.connect({ username: name })
         })
 
         this.goals = []
@@ -51,7 +51,7 @@ export default class Bot {
         }
 
         //remove satisfied goals
-        const satisfiedGoals : Requirement[] = this.goals.filter((goal) => goal.isSatisfied(this.bot))
+        const satisfiedGoals: Requirement[] = this.goals.filter((goal) => goal.isSatisfied(this.bot))
         for (const goal of satisfiedGoals) {
             this.goals.splice(this.goals.indexOf(goal), 1) //TODO log goals
             this.bot.chat("Completed goal")
@@ -82,8 +82,8 @@ export default class Bot {
         this.currentaction.run(this.bot)
     }
 
-    private getActionTorun() : Action | undefined {
-        const requiredActions : Action[] = this.goals.flatMap((goal) => goal.getRequiredActions(this.bot))
+    private getActionTorun(): Action | undefined {
+        const requiredActions: Action[] = this.goals.flatMap((goal) => goal.getRequiredActions(this.bot))
         //TODO evaluate what action to run
         return requiredActions[0]
     }

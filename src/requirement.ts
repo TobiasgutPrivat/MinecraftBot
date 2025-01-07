@@ -1,14 +1,14 @@
 import mineflayer from "mineflayer";
-import {Action,SayMessage} from "./action";
+import { Action, SayMessage } from "./action";
 
 export abstract class Requirement {
-    actions : Action[]; //repressents ways to satisfy the requirement
+    actions: Action[]; //repressents ways to satisfy the requirement
 
     constructor(actions?: Action[]) {
         this.actions = actions ? actions : []
     }
 
-    abstract isSatisfied(bot: mineflayer.Bot) : boolean;
+    abstract isSatisfied(bot: mineflayer.Bot): boolean;
 
     getRequiredActions(bot: mineflayer.Bot): Action[] {
         const runnableActions: Action[] = [];
