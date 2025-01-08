@@ -63,3 +63,42 @@ export interface Action {
 // Action craftsticks:
 // requirements: [haveWoodenPlanks]
 // run: craft
+
+export interface Task {
+    preconditions: Condition[]; // Requirements that must be satisfied
+    effects: Condition[]; // Changes made by completing this task
+    cost: number; // Cost or priority of the task
+    canRun(bot: mineflayer.Bot): boolean; // Check if the task is actionable -> if all preconditions are met
+    run(bot: mineflayer.Bot, finishCallback?: () => void): void; // Execute the task
+}
+
+export interface Condition {
+    isSatisfied(bot: mineflayer.Bot): boolean; // Check if the condition is met
+}
+
+// Task craftStonepickaxe:
+// preconditions: [haveStone, haveSticks, haveplacedcraftingtable]
+// effects: [haveStonepickaxe]
+// cost: 1
+// run: craft
+
+// Condition have*:
+// isSatisfied: check if the player has specific item
+
+// Task mineStone:
+// preconditions: [havepickaxe]
+// effects: [haveStone]
+// cost: 5
+// run: mine
+
+// Task mineLeaves:
+// preconditions: []
+// effects: [haveSticks]
+// cost: 3
+// run: mine
+
+// Task craftSticks:
+// preconditions: [haveWoodenPlanks]
+// effects: [haveSticks]
+// cost: 1
+// run: craft
