@@ -5,7 +5,7 @@ export abstract class Action {
     requirements: Requirement[]
 
     constructor(requirements?: Requirement[]) {
-        this.requirements = requirements ? requirements : []
+        this.requirements = requirements || []
     }
 
     isRunnable(bot: mineflayer.Bot): boolean {

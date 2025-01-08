@@ -5,7 +5,7 @@ export abstract class Requirement {
     actions: Action[]; //repressents ways to satisfy the requirement
 
     constructor(actions?: Action[]) {
-        this.actions = actions ? actions : []
+        this.actions = actions || []
     }
 
     abstract isSatisfied(bot: mineflayer.Bot): boolean;

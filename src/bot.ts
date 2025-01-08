@@ -45,7 +45,7 @@ export default class Bot {
 
     private ReEvaluateActions() {
         //remove completed actions
-        if (this.currentaction?.isCompleted(this.bot)) {
+        if (this.currentaction?.isCompleted?.(this.bot)) {
             this.currentaction = undefined
             this.bot.chat("Completed current action")
         }
@@ -53,7 +53,7 @@ export default class Bot {
         //remove satisfied goals
         const satisfiedGoals: Requirement[] = this.goals.filter((goal) => goal.isSatisfied(this.bot))
         for (const goal of satisfiedGoals) {
-            this.goals.splice(this.goals.indexOf(goal), 1) //TODO log goals
+            this.goals = this.goals.filter((g) => g !== goal); //TODO log goals
             this.bot.chat("Completed goal")
         }
 
