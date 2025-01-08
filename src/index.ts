@@ -1,5 +1,5 @@
 import Bot from "./bot"
-import {HasSaidMessage} from "./requirement"
+import { HasSaidMessage } from "./requirement"
 
 const steve = new Bot("Steve")
 steve.addGoal(new HasSaidMessage("Hello from Steve"))
