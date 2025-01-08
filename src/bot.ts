@@ -1,8 +1,8 @@
 import mineflayer from "mineflayer";
 import { pathfinder, Movements } from "mineflayer-pathfinder";
 
-import { Action } from "./action";
-import { Requirement } from "./requirement";
+import Action from "./action";
+import Requirement from "./requirement";
 
 export default class Bot {
     private currentaction?: Action
@@ -45,7 +45,7 @@ export default class Bot {
 
     private ReEvaluateActions() {
         //remove completed actions
-        if (this.currentaction?.isCompleted?.(this.bot)) {
+        if (!this.currentaction?.isActive?.()) {
             this.currentaction = undefined
             this.bot.chat("Completed current action")
         }
@@ -70,7 +70,7 @@ export default class Bot {
         if (this.currentaction === action) return
 
         if (this.currentaction) {
-            if (this.currentaction?.isActive(this.bot)) {
+            if (this.currentaction?.isActive()) {
                 this.currentaction.cancel(this.bot)
                 this.bot.chat("Aborting current action")
             }

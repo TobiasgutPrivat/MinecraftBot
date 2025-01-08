@@ -1,49 +1,36 @@
 import mineflayer from "mineflayer";
-import { Requirement } from "./requirement";
+import Requirement from "./requirement";
+import MinecraftData from 'minecraft-data'
 
-export abstract class Action {
-    requirements: Requirement[]
+export default abstract class Action {
+    protected mcData = MinecraftData('1.20.4')//TODO: get version somehow (bot.version)
+    protected status: 'initialized' | 'running' | 'aborted' | 'finished' | 'failed' = 'initialized'
+    protected requirements: Requirement[]
 
-    constructor(requirements?: Requirement[]) {
-        this.requirements = requirements || []
+    constructor(requirements: Requirement[]) {
+        this.requirements = requirements
     }
 
-    isRunnable(bot: mineflayer.Bot): boolean {
+    abstract run(bot: mineflayer.Bot): void;
+    
+    protected abstract stopAction(bot: mineflayer.Bot): void;
+
+    public isRunnable(bot: mineflayer.Bot): boolean {
         return this.requirements.every((req) => req.isSatisfied(bot))
     };
 
-    getRequiredActions(bot: mineflayer.Bot): Action[] {
+    public getRequiredActions(bot: mineflayer.Bot): Action[] {
         return this.requirements
             .filter((req) => !req.isSatisfied(bot))
             .flatMap((req) => req.getRequiredActions(bot));
     }
 
-    abstract run(bot: mineflayer.Bot, finishcallback?: () => void): void;
-    abstract cancel(bot: mineflayer.Bot): void;
-    abstract isActive(bot: mineflayer.Bot): boolean;
-    abstract isCompleted(bot: mineflayer.Bot): boolean;
-}
-
-export class SayMessage extends Action {
-    completed: boolean = false
-    message: string
-    constructor(message: string) {
-        super()
-        this.message = message
+    public cancel(bot: mineflayer.Bot): void {
+        this.stopAction(bot)
+        this.status = "aborted"
     }
 
-    run(bot: mineflayer.Bot, finishcallback?: () => void) {
-        bot.chat(this.message)
-        this.completed = true
-        finishcallback?.()
-    }
-    cancel(bot: mineflayer.Bot): void {
-
-    }
-    isActive(bot: mineflayer.Bot): boolean {
-        return false
-    }
-    isCompleted(bot: mineflayer.Bot): boolean {
-        return this.completed;
+    public isActive(): boolean {
+        return this.status === "running"
     }
 }

@@ -1,16 +1,16 @@
 import mineflayer from "mineflayer";
-import { Action, SayMessage } from "./action";
+import Action from "./action";
 
-export abstract class Requirement {
+export default abstract class Requirement {
     actions: Action[]; //repressents ways to satisfy the requirement
 
-    constructor(actions?: Action[]) {
-        this.actions = actions || []
+    constructor(actions: Action[]) {
+        this.actions = actions
     }
 
     abstract isSatisfied(bot: mineflayer.Bot): boolean;
 
-    getRequiredActions(bot: mineflayer.Bot): Action[] {
+    public getRequiredActions(bot: mineflayer.Bot): Action[] {
         const runnableActions: Action[] = [];
 
         for (const action of this.actions) {
@@ -25,17 +25,5 @@ export abstract class Requirement {
         }
 
         return runnableActions;
-    }
-}
-
-export class HasSaidMessage extends Requirement {
-    constructor(message: string) {
-        super()
-        this.actions = [new SayMessage(message)]
-    }
-
-    isSatisfied(bot: mineflayer.Bot): boolean {
-        //check if steve has said hello
-        return this.actions[0].isCompleted(bot)
     }
 }
