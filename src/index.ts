@@ -1,4 +1,3 @@
-import Bot from "./bot"
+import {testInventoryModification} from "../test/Experiments/InventoryExperiments"
 
-const steve = new Bot("Steve")
-const alex = new Bot("Alex")
+testInventoryModification()

@@ -5,6 +5,7 @@ import MinecraftData from 'minecraft-data'
 export default abstract class Action {
     protected mcData = MinecraftData('1.20.4')//TODO: get version somehow (bot.version)
     protected status: 'initialized' | 'running' | 'aborted' | 'finished' | 'failed' = 'initialized'
+    private failReason: string | undefined
     protected requirements: Requirement[]
 
     constructor(requirements: Requirement[]) {
@@ -28,6 +29,11 @@ export default abstract class Action {
     public cancel(bot: mineflayer.Bot): void {
         this.stopAction(bot)
         this.status = "aborted"
+    }
+
+    public setFailed(reason: string): void {
+        this.failReason = reason
+        this.status = "failed"
     }
 
     public isActive(): boolean {
