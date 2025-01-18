@@ -1,22 +1,30 @@
 import mineflayer from "mineflayer"
 
-
 export default interface Action {
     id: string //to determine if actions are the same action
     stopped: boolean
 
-    run(bot: mineflayer.Bot): void
-    canRun(bot: mineflayer.Bot): boolean
-    getEffort(bot: mineflayer.Bot): number //only Effort for running this Action, in ticks, used to determine Utility/Effort
-    simulateBotState(bot: mineflayer.Bot): void
-    resetSimulateBotState(bot: mineflayer.Bot): void
+    // Executes the action
+    run(bot: mineflayer.Bot): void;
 
-    stop(bot: mineflayer.Bot): void
+    // Determines if the action can be executed
+    canRun(bot: mineflayer.Bot): boolean;
+
+    // Returns the effort required to execute this action in ticks
+    getEffort(bot: mineflayer.Bot): number;
+
+    // Simulates the action's effect without actually executing it
+    simulate(bot: mineflayer.Bot): void;
+
+    // Resets the bot's state after simulation
+    resetSimulation(bot: mineflayer.Bot): void;
+
+    // Stops the action if it's running
+    stop(bot: mineflayer.Bot): void;
 
 }
 
-//Maybe make Action only run for 1 tick -> no effort calculation, no need for canceling
-//would allow for more precise states after actions
-//would require handling more factors (also things like momentum, cause effecting effectiveness of next movement)
-// + Effects like regeneration, Weapon recharge etc.
-// would not allow to use pathfinder, but pathfinder could be used to suggest Action for Movement
+// Maybe make simulation only for 1 tick -> 
+// no effort calculation
+// considers state during actions
+// still able to do longer actions

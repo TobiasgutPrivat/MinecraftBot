@@ -5,66 +5,76 @@ import BotState from "./Botstate";
 
 export default class Bot {
     private currentaction?: Action
-    bot: mineflayer.Bot
-    goals: [number,(botState: BotState) => number][] = [] //list of [weight, goal] tuples
+    private readonly bot: mineflayer.Bot
+    goals: [number,(botState: BotState) => number][] = [] //list of [weight, rateGoal()] tuples
+    //maybe make bot private
 
     constructor(name: string) {
-        this.bot = mineflayer.createBot({
-            username: name
-            // default settings
+        this.bot = this.createBot(name);
+        this.initializeBot();
+    }
+
+    private createBot(name: string): mineflayer.Bot {
+        return mineflayer.createBot({
+            username: name,
+            // Default settings (commented out for flexibility)
             // host: "127.0.0.1",
             // port: 25565,
             // auth: 'offline',
         });
+    }
 
-        this.bot.loadPlugin(pathfinder); // enable pathfinder plugin
+    private initializeBot(): void {
+        this.bot.loadPlugin(pathfinder);
 
-        this.bot.once('spawn', () => {
-            const defaultMove = new Movements(this.bot)
+        this.bot.once("spawn", () => {
+            const defaultMove = new Movements(this.bot);
             this.bot.pathfinder.setMovements(defaultMove);
-        })
+        });
 
-        this.bot.on('physicTick', () => {
-            // Designed to reevaluate every tick
-            // alternative: reevaluate on specific triggers (like chat, death, completion, failure)
-            this.ReEvaluateActions()
-        })
+        this.bot.on("physicTick", () => this.reEvaluateActions());
     }
+    private reEvaluateActions() {
+        if (this.currentaction?.stopped) {
+            this.currentaction = undefined
+        }
 
-    private ReEvaluateActions() {
         const currentBotState = new BotState(this.bot)
-        const [currentEvaluation, actions] = this.getEvaluation(currentBotState)
+        const currentScore = this.BotStateScore(currentBotState)
 
-        var ActionsEvaluation: [Action, number][] = actions.map(action => [action, this.ActionEvaluation(action,currentBotState)])
+        var actionScores: [Action, number][] = currentBotState.actionSuggestions.map(
+            action => [action, this.ActionScore(action)]
+        )
+        // maybe include wait Action
 
-        const newAction = ActionsEvaluation.sort((a, b) => b[1] - a[1])[0][0]
+        if (actionScores.length == 0) return
+        
+        const bestAction = actionScores.sort((a, b) => b[1] - a[1])[0][0]
 
-        if (!this.currentaction || newAction.id !== this.currentaction.id) {
-            if (newAction) {
-                this.currentaction = newAction
-                this.currentaction.run(this.bot)
-            }
+        if (!this.currentaction || bestAction.id !== this.currentaction.id) {
+            this.currentaction?.stop(this.bot)
+            this.currentaction = bestAction
+            this.currentaction.run(this.bot)
         }
     }
 
-    private getEvaluation(botState: BotState): [number, Action[]] {
-        let totalEvaluation = 0;
-        const actions: Action[] = [];
+    private BotStateScore(botState: BotState): number {
+        let totalScore = 0;
 
-        for (const [weight, goalEval] of this.goals) {
-            const evaluation = goalEval(botState);
-            totalEvaluation += weight * evaluation;
-            actions.push(...goalActions);
+        for (const [weight, rateGoal] of this.goals) {
+            const score = rateGoal(botState);
+            totalScore += weight * score;
         }
 
-        return [totalEvaluation, actions];
+        return totalScore;
     }
 
-    private ActionEvaluation(action: Action, botState: BotState): number {
-        action.simulateBotState(this.bot)
+    private ActionScore(action: Action): number {
+        action.simulate(this.bot)
+        //TODO: simulate passive changes
         const state = new BotState(this.bot)
-        const [evaluation, _] = this.getEvaluation(state)
-        action.resetSimulateBotState(this.bot)
-        return evaluation / action.getEffort(botState.bot)
+        const score = this.BotStateScore(state)
+        action.resetSimulation(this.bot)
+        return score / action.getEffort(this.bot)
     }
 }

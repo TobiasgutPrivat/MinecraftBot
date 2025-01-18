@@ -4,3 +4,5 @@
 - Open the game to lan with the port `25565`
 - Run `npm i`
 - Run `npm run start`
+
+## Concept

@@ -1,16 +1,22 @@
 import mineflayer from "mineflayer"
-import _ from 'lodash';
+import Action from "./Action";
+import Factor from "./Factor";
 
-export default class BotState {
-    bot: mineflayer.Bot
+export default class BotState { //only allowed to be used for 1 evaluation
+    readonly bot: mineflayer.Bot
+    cache: Map<string, unknown> = new Map();
+    actionSuggestions: Action[] = []
     
     constructor(bot: mineflayer.Bot) {
         this.bot = bot
+    }
 
-        // for simulation of state
-        // option 1: you could modify and reset things again in bot -> maybe issue when something get's updated during process
-        // option 2: clone data like inventory -> maybe serializing and deserializing
-        // currently chosen: option 2 using lodash.cloneDeep -> TODO: check performance
+    calc<T>(factor: Factor<T>): T {
+        return factor.get(this)
     }
 }
+
+// for simulation of state
+// option 1: you could modify and reset things again in bot -> maybe issue when something get's updated during process -> currently chosen
+// option 2: clone data like inventory -> maybe serializing and deserializing or using lodash.cloneDeep -> bad performance
 

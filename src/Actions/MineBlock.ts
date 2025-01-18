@@ -1,6 +1,6 @@
-import Action from "../FactorConcept/Action"
+import Action from "../Action"
 import mineflayer from "mineflayer"
-import BotState from "../FactorConcept/Botstate"
+import BotState from "../Botstate"
 
 const ReachDistance = 4 //TODO: Hardcoded, maybe calculate
 

@@ -1,7 +1,7 @@
-import Action from "../FactorConcept/Action";
+import Action from "../Action";
 import mineflayer from "mineflayer";
 import { goals } from "mineflayer-pathfinder";
-import BotState from "../FactorConcept/Botstate";
+import BotState from "../Botstate";
 
 const GoalNear = goals.GoalNear
 

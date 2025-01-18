@@ -1,4 +1,4 @@
-import Action from "../FactorConcept/Action";
+import Action from "../Action";
 import { Vec3 } from "vec3";
 import mineflayer from "mineflayer";
 import { goals } from "mineflayer-pathfinder";
@@ -40,11 +40,11 @@ export default class GoToPos implements Action {
         // TODO: make this more accurate
     }
 
-    simulateBotState(bot: mineflayer.Bot): void {
+    simulate(bot: mineflayer.Bot): void {
         this.temppos = bot.entity.position
         bot.entity.position = this.pos
     }
-    resetSimulateBotState(bot: mineflayer.Bot): void {
+    resetSimulation(bot: mineflayer.Bot): void {
         if (!this.temppos) return
         bot.entity.position = this.temppos
     }

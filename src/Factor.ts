@@ -1,11 +1,23 @@
-// import Action from "./Action";
-// import BotState from "./Botstate";
+import BotState from "./Botstate";
 
-// export default interface Factor {
-//     id: string //to determine if factors are the same factor
-//     effectedBy(action: Action): boolean
-//     getValue(bot: BotState): any
-// }
+export default abstract class Factor<T = unknown> {
+    get id(): string {  //to determine if factors are the same (for caching)
+        const attributes = JSON.stringify(this);
+        return `${this.constructor.name}:${attributes}`;
+    }
+    
+    get(bot: BotState): T {
+        if (bot.cache.has(this.id)) {
+          return bot.cache.get(this.id) as T; // return the cached result if it exists
+        }
+
+        const result = this.calculate(bot); // calculate the result if it's not cached
+        bot.cache.set(this.id, result); // store the result in the cache
+        return result;
+    }
+
+    abstract calculate(bot: BotState): T
+}
 
 //Best Practice:
 
