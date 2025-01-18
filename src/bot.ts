@@ -1,13 +1,12 @@
 import mineflayer from "mineflayer";
 import { pathfinder, Movements } from "mineflayer-pathfinder";
-
-import Action from "./action";
-import Requirement from "./requirement";
+import Action from "./Action";
+import BotState from "./Botstate";
 
 export default class Bot {
     private currentaction?: Action
     bot: mineflayer.Bot
-    private goals: Requirement[] //requirements are like goals (something to achieve, possible through certain actions)
+    goals: [number,(botState: BotState) => number][] = [] //list of [weight, goal] tuples
 
     constructor(name: string) {
         this.bot = mineflayer.createBot({
@@ -19,11 +18,10 @@ export default class Bot {
         });
 
         this.bot.loadPlugin(pathfinder); // enable pathfinder plugin
-        // this.bot.pathfinder.setMovements(new Movements(this.bot));
 
         this.bot.once('spawn', () => {
-            // not functional
-            this.bot.chat("Hello World")
+            const defaultMove = new Movements(this.bot)
+            this.bot.pathfinder.setMovements(defaultMove);
         })
 
         this.bot.on('physicTick', () => {
@@ -31,61 +29,42 @@ export default class Bot {
             // alternative: reevaluate on specific triggers (like chat, death, completion, failure)
             this.ReEvaluateActions()
         })
-
-        this.bot.on('kicked', () => {
-            this.bot.connect({ username: name })
-        })
-
-        this.goals = []
-    }
-
-    addGoal(goal: Requirement) {
-        this.goals.push(goal)
     }
 
     private ReEvaluateActions() {
-        //remove completed actions
-        if (!this.currentaction?.isActive?.()) {
-            this.currentaction = undefined
-            this.bot.chat("Completed current action")
-        }
+        const currentBotState = new BotState(this.bot)
+        const [currentEvaluation, actions] = this.getEvaluation(currentBotState)
 
-        //remove satisfied goals
-        const satisfiedGoals: Requirement[] = this.goals.filter((goal) => goal.isSatisfied(this.bot))
-        for (const goal of satisfiedGoals) {
-            this.goals = this.goals.filter((g) => g !== goal); //TODO log goals
-            this.bot.chat("Completed goal")
-        }
+        var ActionsEvaluation: [Action, number][] = actions.map(action => [action, this.ActionEvaluation(action,currentBotState)])
 
-        //get action to run
-        const actiontorun = this.getActionTorun()
-        if (actiontorun) {
-            this.applyAction(actiontorun)
-        } else {
-            // this.bot.chat("No action to run")
-        }
-    }
+        const newAction = ActionsEvaluation.sort((a, b) => b[1] - a[1])[0][0]
 
-    private applyAction(action: Action) {
-        if (this.currentaction === action) return
-
-        if (this.currentaction) {
-            if (this.currentaction?.isActive()) {
-                this.currentaction.cancel(this.bot)
-                this.bot.chat("Aborting current action")
+        if (!this.currentaction || newAction.id !== this.currentaction.id) {
+            if (newAction) {
+                this.currentaction = newAction
+                this.currentaction.run(this.bot)
             }
-            //TODO log Action
+        }
+    }
+
+    private getEvaluation(botState: BotState): [number, Action[]] {
+        let totalEvaluation = 0;
+        const actions: Action[] = [];
+
+        for (const [weight, goalEval] of this.goals) {
+            const evaluation = goalEval(botState);
+            totalEvaluation += weight * evaluation;
+            actions.push(...goalActions);
         }
 
-        this.currentaction = action
-        this.bot.chat("Starting new action")
-        this.currentaction.run(this.bot)
+        return [totalEvaluation, actions];
     }
 
-    private getActionTorun(): Action | undefined {
-        const requiredActions: Action[] = this.goals.flatMap((goal) => goal.getRequiredActions(this.bot))
-        //TODO evaluate what action to run
-        return requiredActions[0]
+    private ActionEvaluation(action: Action, botState: BotState): number {
+        action.simulateBotState(this.bot)
+        const state = new BotState(this.bot)
+        const [evaluation, _] = this.getEvaluation(state)
+        action.resetSimulateBotState(this.bot)
+        return evaluation / action.getEffort(botState.bot)
     }
-
 }
