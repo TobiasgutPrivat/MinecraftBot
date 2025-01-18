@@ -1,5 +1,4 @@
 import mineflayer from "mineflayer"
-import BotState from "./Botstate"
 
 
 export default interface Action {
@@ -8,10 +7,11 @@ export default interface Action {
 
     run(bot: mineflayer.Bot): void
     canRun(bot: mineflayer.Bot): boolean
-    getEffort(bot: mineflayer.Bot): number //only Effort for running this Action
-    simulateBotState(bot: BotState): void
+    getEffort(bot: mineflayer.Bot): number //only Effort for running this Action, in ticks, used to determine Utility/Effort
+    simulateBotState(bot: mineflayer.Bot): void
 
     stop(bot: mineflayer.Bot): void
+
 }
 
 //Maybe make Action only run for 1 tick -> no effort calculation, no need for canceling
