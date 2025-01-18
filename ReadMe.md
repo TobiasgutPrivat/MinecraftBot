@@ -6,3 +6,6 @@
 - Run `npm run start`
 
 ## Concept
+
+### Potential changes
+- for long actions evaluate state shortly later instead of after full action
