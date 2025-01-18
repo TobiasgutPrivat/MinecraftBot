@@ -17,6 +17,7 @@
     "prismarine-viewer": "^1.29.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.17.14",
     "@types/node": "^22.10.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
