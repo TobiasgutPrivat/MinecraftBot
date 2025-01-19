@@ -16,7 +16,7 @@ export default abstract class Factor<T = unknown> {
         return result;
     }
 
-    abstract calculate(bot: BotState): T
+    abstract calculate(botState: BotState): T
 }
 
 //Best Practice:
