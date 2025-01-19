@@ -12,7 +12,13 @@
 - track Factors dependencies, to keep factors but recalc if dependencies changed 
     -> allows for Actions to modify factors instead of botstate
 
-### challenges
+### implementation process
+**new functionality**
+start from wanted goal factor, and implement required factors.
+**improvements**
+can be done progressifly:
+make better Evaluation of current state 
+-> do not introduce unlinear stuff (makes some restrictions but concept doesn't make much sense otherwise)
 
 ## Decisions
 this Algorythm is good for managing uncertainty, and diffrent goals but not for exact planning 
