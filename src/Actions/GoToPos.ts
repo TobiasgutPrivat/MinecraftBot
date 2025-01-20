@@ -23,10 +23,14 @@ export default class GoToPos extends Action {
         //TODO: check if bot can reach pos
     }
 
-    run(bot: mineflayer.Bot): void {
-        bot.pathfinder.setGoal(new GoalNear(this.pos.x, this.pos.y, this.pos.z, this.proximity));
-        bot.on("goal_reached", () => this.stopped = true)
-        //maybe add other triggers
+    run(bot: mineflayer.Bot): Promise<void> {
+        return new Promise((resolve) => {
+            bot.pathfinder.setGoal(new GoalNear(this.pos.x, this.pos.y, this.pos.z, this.proximity));
+            bot.on("goal_reached", () => {
+                resolve();
+            });
+            //maybe add other triggers
+        });
     }
 
     getEffort(bot: mineflayer.Bot): number {
@@ -41,5 +45,9 @@ export default class GoToPos extends Action {
     resetSimulation(bot: mineflayer.Bot): void {
         if (!this.temppos) return
         bot.entity.position = this.temppos
+    }
+
+    stop(bot: mineflayer.Bot): void {
+        bot.pathfinder.stop()
     }
 }   

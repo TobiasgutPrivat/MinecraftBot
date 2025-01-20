@@ -1,16 +1,15 @@
 import Action from "../Action"
 import mineflayer from "mineflayer"
-import BotState from "../Botstate"
+import { Item } from "prismarine-item"
 
 const ReachDistance = 4 //TODO: Hardcoded, maybe calculate
 
-export class MineBlock implements Action {
-    id: string
+export class MineBlock extends Action {
     block: string
     stopped: boolean
     //TODO maybe allow mining multiple blocks in one Action or let it use multiple actions
-    constructor(block: string) {
-        this.id = "MineBlock" + block
+    constructor(block: string) { //maybe change to Actual Block instance instead of string
+        super("MineBlock" + block)
         this.block = block;
         this.stopped = false
     }
@@ -19,25 +18,32 @@ export class MineBlock implements Action {
         return bot.findBlock({ matching: (block) => block.name === this.block , maxDistance: ReachDistance}) ? true : false
     }
 
-    run(bot: mineflayer.Bot): void {
+    run(bot: mineflayer.Bot): Promise<void> {
         const block = bot.findBlock({ matching: (block) => block.name === this.block , maxDistance: ReachDistance})
         if (!block) {
             this.stopped = true
+            return Promise.resolve()
         } else {
-            bot.dig(block, true).then(() => {this.stopped = true}) // forcelook true for more realism
+            return bot.dig(block, true) // forcelook true for more realism
         }
     }
 
     getEffort(bot: mineflayer.Bot): number {
-        return 50 // ticks, depends on dig time
         const block = bot.findBlock({ matching: (block) => block.name === this.block , maxDistance: ReachDistance})
         if (block) {
-            bot.digTime(block) // try out maybe depends on tool
+            return bot.digTime(block) // TODO: depends on tool in hand
+        } else {
+            return Infinity
         }
     }
 
-    simulateBotState(bot: BotState): void {
-        bot.bot.getControlState('')
+    simulate(bot: mineflayer.Bot): void {
+        bot.inventory.fillAndDump(new Item(bot.registry.blocksByName[this.block].id, 1), 9, 45, true)
+    }
+
+    resetSimulation(bot: mineflayer.Bot): void {
+        bot.inventory.clear(bot.registry.blocksByName[this.block].id, 1)
+        //maybe remove dumped items
     }
 
     stop(bot: mineflayer.Bot): void {

@@ -35,10 +35,6 @@ export default class Bot {
         this.bot.on("physicTick", () => this.reEvaluateActions());
     }
     private reEvaluateActions() {
-        if (this.currentaction?.stopped) {
-            this.currentaction = undefined
-        }
-
         const currentBotState = new BotState(this.bot)
         const currentScore = this.BotStateScore(currentBotState)
 
@@ -55,7 +51,7 @@ export default class Bot {
             this.currentaction?.stop(this.bot)
             this.currentaction = bestAction
             this.bot.chat("Running " + this.currentaction.id)
-            this.currentaction.run(this.bot)
+            this.currentaction.run(this.bot).then(() => this.currentaction = undefined) // test what happens if currentaction already changed, or just don't remove
         }
     }
 

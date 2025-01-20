@@ -1,18 +1,16 @@
 import mineflayer from "mineflayer"
 
 export default abstract class Action {
-    stopped: boolean
     id: string
     
     constructor(id: string) {
         this.id = id
-        this.stopped = false
     }
 
     //to determine if actions are the same action
 
     // Executes the action
-    abstract run(bot: mineflayer.Bot): void;
+    abstract run(bot: mineflayer.Bot): Promise<void>;
 
     // Determines if the action can be executed
     abstract canRun(bot: mineflayer.Bot): boolean;
@@ -27,10 +25,7 @@ export default abstract class Action {
     abstract resetSimulation(bot: mineflayer.Bot): void;
 
     // Stops the action if it's running
-    stop(bot: mineflayer.Bot): void {
-        bot.pathfinder.stop()
-        this.stopped = true
-    }
+    abstract stop(bot: mineflayer.Bot): void 
 
 }
 

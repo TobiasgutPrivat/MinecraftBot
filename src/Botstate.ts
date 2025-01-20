@@ -5,11 +5,9 @@ export default class BotState { //only allowed to be used for 1 evaluation
     readonly bot: mineflayer.Bot
     cache: Map<string, unknown> = new Map();
     actionSuggestions: Action[] = []
-    readonly mcData 
     
     constructor(bot: mineflayer.Bot) {
         this.bot = bot
-        this.mcData = require('minecraft-data')(bot.version)
     }
 }
 

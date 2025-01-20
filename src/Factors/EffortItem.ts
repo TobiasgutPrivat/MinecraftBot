@@ -1,9 +1,9 @@
 import BotState from "../Botstate"
 import Factor from "../Factor"
-import CollectableItems from "./EffortCollectItem"
+import CollectableItems from "./CollectableItems"
 import ItemCost from "./ItemCost"
 
-export default class EffortHaveItem extends Factor<number> {
+export default class EffortItem extends Factor<number> {
     itemName: string
     count: number
     constructor(itemName: string, count: number = 1) {
@@ -13,7 +13,7 @@ export default class EffortHaveItem extends Factor<number> {
     }
 
     calculate(botState: BotState): number {
-        const inventoryCount: number = botState.bot.inventory.count(botState.mcData.itemsByName[this.itemName].id, null);
+        const inventoryCount: number = botState.bot.inventory.count(botState.bot.registry.itemsByName[this.itemName].id, null);
         const remainingCount = this.count - inventoryCount
 
         const itemCost = new ItemCost(this.itemName).get(botState)
