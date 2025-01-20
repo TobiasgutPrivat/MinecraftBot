@@ -1,6 +1,6 @@
 import BotState from "../Botstate"
 import Factor from "../Factor"
-import EffortCollectItem from "./EffortCollectItem"
+import CollectableItems from "./EffortCollectItem"
 import ItemCost from "./ItemCost"
 
 export default class EffortHaveItem extends Factor<number> {
@@ -16,23 +16,57 @@ export default class EffortHaveItem extends Factor<number> {
         const inventoryCount: number = botState.bot.inventory.count(this.itemName, null);
         const remainingCount = this.count - inventoryCount
 
-        const costs = new ItemCost(this.itemName).get(botState)
+        const itemCost = new ItemCost(this.itemName).get(botState)
         
-        if (remainingCount <= 0) return remainingCount * costs // using from Inventory has some cost
+        const claimCost = inventoryCount * itemCost //maybe include in ObtainWays
 
-        // Make item be in Inventory
-        const effortCollect: number = new EffortCollectItem(this.itemName, remainingCount).get(botState)
-        // or
-        // TODO: craftItem
-        // or
+        if (remainingCount <= 0) return claimCost // using from Inventory has some cost
+
+        // Ways to get Items
+        var obtainWays: {effort: number, count: number}[] = [] // maybe make class for {effort: number, count: number}
+
+        obtainWays.push(...new CollectableItems(this.itemName).get(botState))
+        // +
+        // craftItem
+        // +
+        // mineBlock
+        // +
+        // killMob
+        // +
         // effortLootItem
 
-        // -> maybe change to evaluate all possibilities (craft, collect, mine, kill -> array of [effort, count]) and choose best combination
-
-        const effort: number = effortCollect
+        // evaluate all possibilities (craft, collect, mine, kill -> array of [effort, count]) and choose best combination
+        const totalEffort = this.EffortFromObtainWays(obtainWays, remainingCount)
 
         // No direct influence from Actions
 
-        return effort
+        return claimCost + totalEffort
+    }
+
+    private EffortFromObtainWays(obtainWays: {effort: number, count: number}[], requiredCount: number): number { //Maybe Export
+        // Calculate efficiency (effort per item) and sort options by it
+        obtainWays.sort((a, b) => (a.effort / a.count) - (b.effort / b.count));
+        
+        let totalEffort = 0;
+        let itemsCollected = 0;
+
+        for (const obtainWay of obtainWays) {
+            const { effort, count } = obtainWay;
+                // Take all items from this option
+                totalEffort += effort; // Use full effort for this option
+                itemsCollected += count;
+            if (itemsCollected + count >= requiredCount) {
+                break;
+            }
+        }
+
+        // If not enough items are available
+        if (itemsCollected < requiredCount) {
+            return Infinity;
+        }
+
+        // const additionalItems: number = (itemsCollected - requiredCount) // maybe calc in items which are left
+
+        return totalEffort;
     }
 }
