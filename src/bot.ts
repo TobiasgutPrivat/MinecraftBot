@@ -5,7 +5,7 @@ import BotState from "./Botstate";
 
 export default class Bot {
     private currentaction?: Action
-    private readonly bot: mineflayer.Bot
+    readonly bot: mineflayer.Bot
     goals: [number,(botState: BotState) => number][] = [] //list of [weight, rateGoal()] tuples
     //maybe make bot private
 

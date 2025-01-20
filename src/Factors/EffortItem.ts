@@ -1,8 +1,10 @@
+import { BlockList } from "net"
 import BotState from "../Botstate"
 import Factor from "../Factor"
 import CollectableItems from "./CollectableItems"
 import ItemCost from "./ItemCost"
 import MineableBlocks from "./MineableBlocks"
+import {Item} from "minecraft-data"
 
 export default class EffortItem extends Factor<number> {
     itemName: string
@@ -28,7 +30,10 @@ export default class EffortItem extends Factor<number> {
 
         obtainWays.push(...new CollectableItems(this.itemName).get(botState))
         // +
-        obtainWays.push(...new MineableBlocks(this.itemName, remainingCount).get(botState))
+        const blockTypesToMine = this.blockTypesToMine(botState, this.itemName)
+        for (const block of blockTypesToMine) {
+            obtainWays.push(...new MineableBlocks(block, remainingCount).get(botState))
+        }
         // +
         // mineBlock
         // +
@@ -42,6 +47,17 @@ export default class EffortItem extends Factor<number> {
         // No direct influence from Actions
 
         return claimCost + totalEffort
+    }
+
+    private blockTypesToMine(botState: BotState, itemName: string): string[] { //Maybe Export to lib
+        const blocksToMine: string[] = []
+        for (const block of Object.values(botState.bot.registry.blockLoot)) {
+            const blockDrops = block.drops.map(drop => drop.item)
+            if (blockDrops.includes(itemName)) {
+                blocksToMine.push(block.block)
+            }
+        }
+        return blocksToMine
     }
 
     private EffortFromObtainWays(obtainWays: {effort: number, count: number}[], requiredCount: number): number { //Maybe Export
@@ -63,7 +79,7 @@ export default class EffortItem extends Factor<number> {
 
         // If not enough items are available
         if (itemsCollected < requiredCount) {
-            return Infinity;
+            console.log(`Not enough items collectable. Required: ${requiredCount}, Collected: ${itemsCollected}`);
         }
 
         // const additionalItems: number = (itemsCollected - requiredCount) // maybe calc in items which are left

@@ -40,9 +40,9 @@ export default class MineableBlocks extends Factor<{effort: number, count: numbe
         var blocks: Vec3[] = []
         var range: number = 2
         
-        while (blocks.length < this.goalCount) {
+        while (blocks.length < this.goalCount && range < 64) { //64 maxsearchdistance
             range *= 2;
-            blocks = botState.bot.findBlocks({ matching: block.id, maxDistance: range });
+            blocks = botState.bot.findBlocks({ matching: block.id, maxDistance: range }); //actually sorted by distance
         }
 
         return blocks

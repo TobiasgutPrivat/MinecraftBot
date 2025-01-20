@@ -20,6 +20,7 @@ export class MineBlock extends Action {
 
     run(bot: mineflayer.Bot): Promise<void> {
         const block = bot.findBlock({ matching: (block) => block.name === this.block , maxDistance: ReachDistance})
+        //TODO: select proper tool
         if (!block) {
             this.stopped = true
             return Promise.resolve()
@@ -38,6 +39,7 @@ export class MineBlock extends Action {
     }
 
     simulate(bot: mineflayer.Bot): void {
+        //TODO: fix this
         bot.inventory.fillAndDump(new Item(bot.registry.blocksByName[this.block].id, 1), 9, 45, true)
     }
 

@@ -17,7 +17,8 @@ export default class EffortMineBlockType extends Factor<number> {
         if (block.material) {
             const material: Material = botState.bot.registry.materials[block.material]
             for (const [tool, multiplier] of Object.entries(material)) {
-                tools.push({name:tool, effort: new EffortItem(tool).get(botState), multiplier: multiplier})
+                const toolItemName = botState.bot.registry.items[Number.parseInt(tool)].name
+                tools.push({name:toolItemName, effort: new EffortItem(toolItemName).get(botState), multiplier: multiplier})
             }
         }
         

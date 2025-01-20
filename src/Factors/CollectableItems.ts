@@ -2,7 +2,7 @@ import BotState from "../Botstate"
 import Factor from "../Factor"
 import EffortGetToPos from "./EffortGetToPos"
 import ItemDrops from "./ItemDrops"
-import { REACHDISTANCE } from "../Constants"
+import { COLLECTDISTANCE } from "../Constants"
 
 export default class CollectableItems extends Factor<{effort: number, count: number}[]> {
     itemName: string
@@ -16,7 +16,7 @@ export default class CollectableItems extends Factor<{effort: number, count: num
         const items = new ItemDrops(this.itemName).get(botState);
 
         const CollectableItems = items.map(item => { return {
-            effort: new EffortGetToPos(item.position, REACHDISTANCE).get(botState), 
+            effort: new EffortGetToPos(item.position, COLLECTDISTANCE).get(botState), 
             count: (item.metadata[8] as {count: number}).count
         }})
 
