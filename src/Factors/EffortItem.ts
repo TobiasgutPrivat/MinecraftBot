@@ -2,6 +2,7 @@ import BotState from "../Botstate"
 import Factor from "../Factor"
 import CollectableItems from "./CollectableItems"
 import ItemCost from "./ItemCost"
+import MineableBlocks from "./MineableBlocks"
 
 export default class EffortItem extends Factor<number> {
     itemName: string
@@ -27,7 +28,7 @@ export default class EffortItem extends Factor<number> {
 
         obtainWays.push(...new CollectableItems(this.itemName).get(botState))
         // +
-        // craftItem
+        obtainWays.push(...new MineableBlocks(this.itemName, remainingCount).get(botState))
         // +
         // mineBlock
         // +
