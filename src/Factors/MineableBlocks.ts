@@ -1,7 +1,7 @@
 import BotState from "../Botstate";
 import Factor from "../Factor";
 import {Block, Material} from "minecraft-data";
-import EffortItem from "./EffortItem";
+import { Vec3 } from "vec3";
 import EffortGetToPos from "./EffortGetToPos";
 import { REACHDISTANCE } from "../Constants";
 import EffortMineBlockType from "./EffortMineBlockType";
@@ -9,17 +9,17 @@ import { MineBlock } from "../Actions/MineBlock";
 
 export default class MineableBlocks extends Factor<{effort: number, count: number}[]> {
     block: string
-    constructor(block: string) {
+    goalCount: number
+    constructor(block: string, goalCount: number) {
         super()
         this.block = block
+        this.goalCount = goalCount
     }
 
     calculate(botState: BotState): {effort: number, count: number}[] {
-        const block: Block = botState.bot.registry.blocksByName[this.block]
-        
         const mineEffort: number = new EffortMineBlockType(this.block).calculate(botState)
 
-        const blocks = botState.bot.findBlocks({ matching: block.id, maxDistance: 32 }) //Think about distance and how to find best options, but not too many
+        const blocks: Vec3[] = this.getViableBlocksToMine(botState) //Think about distance and how to find best options, but not too many
 
         const mineableBlocks: {effort: number, count: number}[] = blocks.map(block => {
             const effortPos = new EffortGetToPos(block, REACHDISTANCE).get(botState)
@@ -30,5 +30,17 @@ export default class MineableBlocks extends Factor<{effort: number, count: numbe
             }})
 
         return  mineableBlocks
+    }
+
+    getViableBlocksToMine(botState: BotState): Vec3[] {
+        const block: Block = botState.bot.registry.blocksByName[this.block]
+        var blocks: Vec3[] = []
+        var range: number = 1
+        while (blocks.length < this.goalCount) {
+            blocks = botState.bot.findBlocks({ matching: block.id, maxDistance: range });
+            range *= 2;
+        }
+
+        return blocks
     }
 }
