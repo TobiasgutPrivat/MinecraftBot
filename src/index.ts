@@ -5,5 +5,5 @@ import EffortGetToPos from "./Factors/EffortGetToPos";
 
 const steve = new Bot("steve");
 steve.goals.push([1, (botState: BotState) => {
-    return - botState.calc(new EffortGetToPos(new Vec3(0,0,0), 1));
+    return - new EffortGetToPos(new Vec3(0,0,0), 1).get(botState);
 }]);

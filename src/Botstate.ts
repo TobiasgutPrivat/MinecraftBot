@@ -1,6 +1,5 @@
 import mineflayer from "mineflayer"
 import Action from "./Action";
-import Factor from "./Factor";
 
 export default class BotState { //only allowed to be used for 1 evaluation
     readonly bot: mineflayer.Bot
@@ -11,10 +10,6 @@ export default class BotState { //only allowed to be used for 1 evaluation
     constructor(bot: mineflayer.Bot) {
         this.bot = bot
         this.mcData = require('minecraft-data')(bot.version)
-    }
-
-    calc<T>(factor: Factor<T>): T {
-        return factor.get(this)
     }
 }
 

@@ -19,6 +19,10 @@ start from wanted goal factor, and implement required factors.
 can be done progressifly:
 make better Evaluation of current state 
 -> do not introduce unlinear stuff (makes some restrictions but concept doesn't make much sense otherwise)
+**Modulation**
+If some code is used multiple times -> if possible export to Factor
+**How to look for improvements**
+Observe bot and see what you would do diffrent -> figure out determining Factors
 
 ## Decisions
 this Algorythm is good for managing uncertainty, and diffrent goals but not for exact planning 
@@ -42,8 +46,8 @@ using a tool
 -> charge partial item cost.
 
 positions
-opt1. maybe tempstore all wanted positions -> calc shortest path between them as effort
-opt2. or track wanted positions (maybe from last tick), and evaluate how the wanted position effects those (in EffortGetToPos) -> estimation
+Calculate effort based on wanted positions from last tick
+evaluate how the wanted position effects the total effort (in EffortGetToPos) -> estimation
 
 **for avoidance:**
 avoid loosing stuff: chance of death * costs of inventory

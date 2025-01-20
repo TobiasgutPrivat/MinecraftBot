@@ -1,5 +1,8 @@
 import BotState from "../Botstate"
 import Factor from "../Factor"
+import EffortGetToPos from "./EffortGetToPos"
+import ItemDrops from "./ItemDrops"
+import { REACHDISTANCE } from "../Constants"
 
 export default class EffortCollectItem extends Factor<number> {
     itemName: string
@@ -11,18 +14,20 @@ export default class EffortCollectItem extends Factor<number> {
     }
 
     calculate(botState: BotState): number {
-        const entities = Object.values(botState.bot.entities);
-        const items = entities.filter(entity => entity.type === 'other' && entity.entityType === 55 && (entity.metadata[1] as {itemId: number}).itemId === botState.mcData.itemsByName[this.itemName].id);
+        const items = new ItemDrops(this.itemName).get(botState);
 
-        const itemInfo = items.map(entity => ({
-            position: entity.position,
-            distance: entity.position.distanceTo(botState.bot.entity.position),
-            count: (entity.metadata[1] as {count: number}).count
-        }))
+        var effortCollectItems = 0
+        var sumCollectedItems = 0
 
-        // const sumAvailableItems = itemInfo.reduce((acc, info) => acc + info.count, 0)
+        for (const item of items) {
+            effortCollectItems += new EffortGetToPos(item.position, REACHDISTANCE).get(botState)
+            sumCollectedItems += (item.metadata[1] as {count: number}).count
+            if (this.count <= sumCollectedItems) { 
+                return effortCollectItems 
+            }
+        }
 
-        // calc effort for each item to get it
+        const remainingCount = this.count - sumCollectedItems
 
         // calc effort to make new drops from blocks or mobs + collect(already nearby)
 
