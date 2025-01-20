@@ -7,14 +7,13 @@ const GoalNear = goals.GoalNear
 
 //generally not optimal Action because pathfinder doesn't consider other factors into path planning
 //using tickwise, pathfinder can still be used to find fastest path, and recommend next action (direction of movement)
-export default class GoToPos implements Action {
-    id: string
-    stopped: boolean = false
+export default class GoToPos extends Action {
     pos: Vec3
     proximity: number
     temppos?: Vec3
+
     constructor(pos: Vec3, proximity: number) {
-        this.id = "GoToPos" + pos.toString()
+        super(`GoToPos (${pos.x.toFixed(1)} ${pos.y.toFixed(0)} ${pos.z.toFixed(1)}), Range ${proximity.toString()}`)
         this.pos = pos
         this.proximity = proximity
     }
@@ -25,14 +24,9 @@ export default class GoToPos implements Action {
     }
 
     run(bot: mineflayer.Bot): void {
-        bot.chat("Running GoToPos" + this.pos.toString())
         bot.pathfinder.setGoal(new GoalNear(this.pos.x, this.pos.y, this.pos.z, this.proximity));
-
-    }
-
-    stop(bot: mineflayer.Bot): void {
-        bot.pathfinder.setGoal(null)
-        this.stopped = true
+        bot.on("goal_reached", () => this.stopped = true)
+        //maybe add other triggers
     }
 
     getEffort(bot: mineflayer.Bot): number {

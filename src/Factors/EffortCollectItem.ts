@@ -17,7 +17,7 @@ export default class CollectableItems extends Factor<{effort: number, count: num
 
         const CollectableItems = items.map(item => { return {
             effort: new EffortGetToPos(item.position, REACHDISTANCE).get(botState), 
-            count: (item.metadata[1] as {count: number}).count
+            count: (item.metadata[8] as {count: number}).count
         }})
 
         return CollectableItems

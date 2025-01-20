@@ -1,26 +1,36 @@
 import mineflayer from "mineflayer"
 
-export default interface Action {
-    id: string //to determine if actions are the same action
+export default abstract class Action {
     stopped: boolean
+    id: string
+    
+    constructor(id: string) {
+        this.id = id
+        this.stopped = false
+    }
+
+    //to determine if actions are the same action
 
     // Executes the action
-    run(bot: mineflayer.Bot): void;
+    abstract run(bot: mineflayer.Bot): void;
 
     // Determines if the action can be executed
-    canRun(bot: mineflayer.Bot): boolean;
+    abstract canRun(bot: mineflayer.Bot): boolean;
 
     // Returns the effort required to execute this action in ticks
-    getEffort(bot: mineflayer.Bot): number;
+    abstract getEffort(bot: mineflayer.Bot): number;
 
     // Simulates the action's effect without actually executing it
-    simulate(bot: mineflayer.Bot): void;
+    abstract simulate(bot: mineflayer.Bot): void;
 
     // Resets the bot's state after simulation
-    resetSimulation(bot: mineflayer.Bot): void;
+    abstract resetSimulation(bot: mineflayer.Bot): void;
 
     // Stops the action if it's running
-    stop(bot: mineflayer.Bot): void;
+    stop(bot: mineflayer.Bot): void {
+        bot.pathfinder.stop()
+        this.stopped = true
+    }
 
 }
 

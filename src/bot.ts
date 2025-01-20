@@ -54,6 +54,7 @@ export default class Bot {
         if (!this.currentaction || bestAction.id !== this.currentaction.id) {
             this.currentaction?.stop(this.bot)
             this.currentaction = bestAction
+            this.bot.chat("Running " + this.currentaction.id)
             this.currentaction.run(this.bot)
         }
     }

@@ -13,7 +13,7 @@ export default class EffortHaveItem extends Factor<number> {
     }
 
     calculate(botState: BotState): number {
-        const inventoryCount: number = botState.bot.inventory.count(this.itemName, null);
+        const inventoryCount: number = botState.bot.inventory.count(botState.mcData.itemsByName[this.itemName].id, null);
         const remainingCount = this.count - inventoryCount
 
         const itemCost = new ItemCost(this.itemName).get(botState)

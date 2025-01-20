@@ -2,12 +2,12 @@ import Action from "./Action";
 import BotState from "./Botstate";
 
 export default abstract class Factor<T = unknown> {
-    botState: BotState | undefined
+    protected botState: BotState | undefined
 
     //to determine if factors are the same (for caching)
     get id(): string {  
-        const attributes = JSON.stringify(this);
-        return `${this.constructor.name}:${attributes}`;
+        const attributes = Object.entries(this).filter(([key, value]) => key !== 'botState');
+        return `${this.constructor.name}:${attributes.join(',')}`;
     }
 
     // suggest an action for current botState
