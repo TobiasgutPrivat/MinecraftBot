@@ -7,13 +7,6 @@
 
 ## Concept
 
-### Potential changes
-- for long actions evaluate states after 1 tick instead of after full action
-- track Factors dependencies, to keep factors cached but recalc if dependencies change
-    -> requires better tracking of inventorychanges etc. -> as Factors
-    -> Only recalc needed
-    -> allows for Actions to modify factors instead of botstate -> less conflicts
-    -> better performance
 
 ### implementation guide
 
@@ -47,7 +40,7 @@ cost in estimated effort to get the item
 
 **for avoidance:**
 measure chance,
-
+        
 **Examples special cases**
 **for progress things:**
 taking something away from inventory 
@@ -65,3 +58,24 @@ Weights of position especially important for like individual blocks -> maybe don
 
 **for avoidance:**
 avoid loosing stuff: chance of death * costs of inventory
+
+### Potential changes
+- for long actions evaluate states after 1 tick instead of after full action
+- track Factors dependencies, to keep factors cached but recalc if dependencies change
+    -> requires better tracking of inventorychanges etc. -> as Factors
+    -> Only recalc needed
+    -> allows for Actions to modify factors instead of botstate -> less conflicts
+    -> better performance
+    -> challenges handling things like blockdata -> probably not store all blocks
+    -> more advanced
+        -> make Factors with precision levels
+        -> dynamicly calculate Factors which are most relevant first
+        
+        Approach of Trigger based Factor calculation
+        The Game changes some fixed Factors like positions or inventory or mobs
+        If a Factor get's changed by more then 10% dependend Factors get recalculated (10% can be adjusted -> impacts performance)
+        Actions depending on Factors -> big changes -> reevaluate Action (not during simulation of other Action)
+
+        Idea: figure Actions out without calcing the whole thing
+        figure out which Actions are benefitial -> would require weighting of Factors -> not as accurate as direct calculation
+
