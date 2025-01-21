@@ -9,8 +9,11 @@
 
 ### Potential changes
 - for long actions evaluate states after 1 tick instead of after full action
-- track Factors dependencies, to keep factors but recalc if dependencies changed 
-    -> allows for Actions to modify factors instead of botstate
+- track Factors dependencies, to keep factors cached but recalc if dependencies change
+    -> requires better tracking of inventorychanges etc. -> as Factors
+    -> Only recalc needed
+    -> allows for Actions to modify factors instead of botstate -> less conflicts
+    -> better performance
 
 ### implementation guide
 

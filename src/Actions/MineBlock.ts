@@ -1,55 +1,68 @@
 import Action from "../Action"
 import mineflayer from "mineflayer"
-import { Item } from "prismarine-item"
-
-const ReachDistance = 4 //TODO: Hardcoded, maybe calculate
+import ItemCreater, { Item } from "prismarine-item"
+import {Block} from "prismarine-block"
 
 export class MineBlock extends Action {
-    block: string
-    stopped: boolean
+    block: Block
+    drops: Item[] | undefined
     //TODO maybe allow mining multiple blocks in one Action or let it use multiple actions
-    constructor(block: string) { //maybe change to Actual Block instance instead of string
-        super("MineBlock" + block)
+    constructor(block: Block) { //maybe change to Actual Block instance instead of string
+        super("MineBlock" + block.position)
         this.block = block;
-        this.stopped = false
     }
 
     canRun(bot: mineflayer.Bot): boolean {
-        return bot.findBlock({ matching: (block) => block.name === this.block , maxDistance: ReachDistance}) ? true : false
+        return bot.canDigBlock(this.block)
     }
 
-    run(bot: mineflayer.Bot): Promise<void> {
-        const block = bot.findBlock({ matching: (block) => block.name === this.block , maxDistance: ReachDistance})
+    run(bot: mineflayer.Bot): void {
         //TODO: select proper tool
-        if (!block) {
-            this.stopped = true
-            return Promise.resolve()
-        } else {
-            return bot.dig(block, true) // forcelook true for more realism
-        }
+        bot.dig(this.block, true) // forcelook true for more realism
     }
 
     getEffort(bot: mineflayer.Bot): number {
-        const block = bot.findBlock({ matching: (block) => block.name === this.block , maxDistance: ReachDistance})
-        if (block) {
-            return bot.digTime(block) // TODO: depends on tool in hand
-        } else {
-            return Infinity
-        }
+        // TODO: depends on tool in hand
+        return bot.digTime(this.block)
     }
 
     simulate(bot: mineflayer.Bot): void {
-        //TODO: fix this
-        bot.inventory.fillAndDump(new Item(bot.registry.blocksByName[this.block].id, 1), 9, 45, true)
+        this.drops = MineBlock.getDrops(bot, this.block);
+        for (const itemDrop of this.drops) {
+            bot.inventory.fillAndDump(itemDrop, 9, 45, true)
+        }
     }
 
     resetSimulation(bot: mineflayer.Bot): void {
-        bot.inventory.clear(bot.registry.blocksByName[this.block].id, 1)
+        if (!this.drops) return
+        for (const itemDrop of this.drops) {
+            bot.inventory.clear(itemDrop.type, itemDrop.count)
+        }
         //maybe remove dumped items
     }
 
     stop(bot: mineflayer.Bot): void {
         bot.stopDigging()
-        this.stopped = true
+    }
+
+    static getDrops(bot: mineflayer.Bot, block: Block): Item[] {
+        const ItemType = ItemCreater(bot.version)
+        if (block.drops) {
+            return block.drops.map(drop => {
+                if (typeof drop === "number") {
+                    return new ItemType(drop, 1)
+                } else {
+                    const max = drop.maxCount ?? 1
+                    const min = drop.minCount ?? 1
+                    if (typeof drop.drop === "number") {
+                        return new ItemType(drop.drop, (max + min) / 2)
+                    } else {
+                        return new ItemType(drop.drop.id, (max + min) / 2, drop.drop.metadata)
+                    }
+                }
+            })
+        } else {
+            return []
+        }
     }
 }

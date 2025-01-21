@@ -10,7 +10,7 @@ export default abstract class Action {
     //to determine if actions are the same action
 
     // Executes the action
-    abstract run(bot: mineflayer.Bot): Promise<void>;
+    abstract run(bot: mineflayer.Bot): void;
 
     // Determines if the action can be executed
     abstract canRun(bot: mineflayer.Bot): boolean;

@@ -30,10 +30,19 @@ export default class Bot {
         this.bot.once("spawn", () => {
             const defaultMove = new Movements(this.bot);
             this.bot.pathfinder.setMovements(defaultMove);
-        });
 
-        this.bot.on("physicTick", () => this.reEvaluateActions());
+            this.mainLoop();
+        });
     }
+
+    //always reEvaluate, max 1 time per tick
+    private async mainLoop() {
+        while (true) {
+            this.reEvaluateActions()
+            await this.bot.waitForTicks(1)
+        }
+    }
+
     private reEvaluateActions() {
         const currentBotState = new BotState(this.bot)
         const currentScore = this.BotStateScore(currentBotState)
@@ -51,7 +60,7 @@ export default class Bot {
             this.currentaction?.stop(this.bot)
             this.currentaction = bestAction
             this.bot.chat("Running " + this.currentaction.id)
-            this.currentaction.run(this.bot).then(() => this.currentaction = undefined) // test what happens if currentaction already changed, or just don't remove
+            this.currentaction.run(this.bot) // test what happens if currentaction already changed, or just don't remove
         }
     }
 
