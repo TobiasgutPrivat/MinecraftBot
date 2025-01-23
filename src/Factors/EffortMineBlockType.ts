@@ -26,8 +26,10 @@ export default class EffortMineBlockType extends Factor<number> {
             if (block.harvestTools && !(tool.name in block.harvestTools)) {
                 tool.effort *= 10/3
             }})
+
+        const MiningMultiplier = 1 // figure this out
             
-        const toolEfforts: number[] = tools.map(tool => ((block.hardness? block.hardness : Infinity) / tool.multiplier) + tool.effort) // hardness untested
+        const toolEfforts: number[] = tools.map(tool => (block.hardness? block.hardness : Infinity) / tool.multiplier * MiningMultiplier + tool.effort) // hardness untested
         
         const mineEffort: number = Math.min(...toolEfforts)
 

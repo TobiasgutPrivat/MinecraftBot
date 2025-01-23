@@ -67,6 +67,7 @@ avoid loosing stuff: chance of death * costs of inventory
     -> allows for Actions to modify factors instead of botstate -> less conflicts
     -> better performance
     -> challenges handling things like blockdata -> probably not store all blocks
+    -> Probably Botstate not seperate anymore
     -> more advanced
         -> make Factors with precision levels
         -> dynamicly calculate Factors which are most relevant first

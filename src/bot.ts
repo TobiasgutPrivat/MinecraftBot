@@ -38,7 +38,10 @@ export default class Bot {
     //always reEvaluate, max 1 time per tick
     private async mainLoop() {
         while (true) {
+            const startTime = Date.now()
             this.reEvaluateActions()
+            const durration = Date.now() - startTime
+            console.log("Duration " + durration)
             await this.bot.waitForTicks(1)
         }
     }
@@ -47,17 +50,17 @@ export default class Bot {
         const currentBotState = new BotState(this.bot)
         const currentScore = this.BotStateScore(currentBotState)
 
-        var actionScores: [Action, number][] = currentBotState.actionSuggestions.map(
-            action => [action, this.ActionScore(action)]
+        var actionScores: [Action, number, number][] = currentBotState.actionSuggestions.map(
+            action => [action, this.ActionScore(action), action.getEffort(this.bot)]
         )
         // maybe include wait Action
 
         if (actionScores.length == 0) return
         
-        const bestAction = actionScores.sort((a, b) => b[1] - a[1])[0][0]
+        const bestAction = actionScores.sort((a, b) => (b[1]/b[2]) - (a[1]/a[2]))[0][0] //compare score/effort
 
         if (!this.currentaction || bestAction.id !== this.currentaction.id) {
-            this.currentaction?.stop(this.bot)
+            // this.currentaction?.stop(this.bot) //maybe not needed
             this.currentaction = bestAction
             this.bot.chat("Running " + this.currentaction.id)
             this.currentaction.run(this.bot) // test what happens if currentaction already changed, or just don't remove

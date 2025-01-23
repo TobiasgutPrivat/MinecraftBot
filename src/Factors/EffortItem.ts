@@ -79,7 +79,7 @@ export default class EffortItem extends Factor<number> {
 
         // If not enough items are available
         if (itemsCollected < requiredCount) {
-            console.log(`Not enough ${this.itemName} collectable. Required: ${requiredCount}, Collected: ${itemsCollected}`);
+            // console.log(`Not enough ${this.itemName} collectable. Required: ${requiredCount}, Collected: ${itemsCollected}`);
         }
 
         // const additionalItems: number = (itemsCollected - requiredCount) // maybe calc in items which are left

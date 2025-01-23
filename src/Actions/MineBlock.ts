@@ -42,7 +42,7 @@ export class MineBlock extends Action {
     }
 
     stop(bot: mineflayer.Bot): void {
-        bot.stopDigging()
+        bot.stopDigging();
     }
 
     static getDrops(bot: mineflayer.Bot, block: Block): Item[] {
