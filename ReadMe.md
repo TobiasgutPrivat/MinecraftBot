@@ -68,6 +68,7 @@ avoid loosing stuff: chance of death * costs of inventory
     -> better performance
     -> challenges handling things like blockdata -> probably not store all blocks
     -> Probably Botstate not seperate anymore
+          -> add mcdata and other info dicts like recipes or blockdrops to bot
     -> more advanced
         -> make Factors with precision levels
         -> dynamicly calculate Factors which are most relevant first
