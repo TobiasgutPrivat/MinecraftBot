@@ -28,7 +28,7 @@ export default class GoToPos extends Action {
     }
 
     getEffort(bot: mineflayer.Bot): number {
-        return bot.entity.position.distanceTo(this.pos) / bot.physics.sprintSpeed * 20 
+        return bot.entity.position.distanceTo(this.pos) * bot.physics.sprintSpeed * 20 
         // TODO: make this more accurate
     }
 
@@ -43,5 +43,9 @@ export default class GoToPos extends Action {
 
     stop(bot: mineflayer.Bot): void {
         bot.pathfinder.stop()
+    }
+
+    isRunning(bot: mineflayer.Bot): boolean {
+        return bot.pathfinder.goal !== null
     }
 }   

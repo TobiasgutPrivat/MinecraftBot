@@ -6,19 +6,27 @@ import {Block} from "prismarine-block"
 export class MineBlock extends Action {
     block: Block
     drops: Item[] | undefined
+    running: boolean
     //TODO maybe allow mining multiple blocks in one Action or let it use multiple actions
     constructor(block: Block) { //maybe change to Actual Block instance instead of string
         super("MineBlock" + block.position)
         this.block = block;
+        this.running = false
     }
 
     canRun(bot: mineflayer.Bot): boolean {
-        return bot.canDigBlock(this.block)
+        // const standsOnGround = bot.blockAt(bot.entity.position.offset(0, -1, 0)) !== null
+        const standsOnGround = bot.entity.position.y % 0.5 === 0
+        return bot.canDigBlock(this.block) && standsOnGround
     }
 
     run(bot: mineflayer.Bot): void {
         //TODO: select proper tool
-        bot.dig(this.block, true) // forcelook true for more realism
+        bot.dig(this.block, false).catch(() => {
+            this.running = false
+            bot.chat("Digging aborted")
+        }) // important to catch promise-errors
+        this.running = true
     }
 
     getEffort(bot: mineflayer.Bot): number {
@@ -43,6 +51,10 @@ export class MineBlock extends Action {
 
     stop(bot: mineflayer.Bot): void {
         bot.stopDigging();
+    }
+
+    isRunning(bot: mineflayer.Bot): boolean {
+        return this.running //TODO
     }
 
     static getDrops(bot: mineflayer.Bot, block: Block): Item[] {

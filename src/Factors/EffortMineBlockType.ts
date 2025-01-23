@@ -23,11 +23,11 @@ export default class EffortMineBlockType extends Factor<number> {
         }
         
         tools.forEach(tool => {
-            if (block.harvestTools && !(tool.name in block.harvestTools)) {
-                tool.effort *= 10/3
+            if (block.harvestTools) {
+                tool.effort = Infinity // time *= 10/3, but doesn't drop item in that case i think
             }})
 
-        const MiningMultiplier = 1 // figure this out
+        const MiningMultiplier = 40 // figure this out
             
         const toolEfforts: number[] = tools.map(tool => (block.hardness? block.hardness : Infinity) / tool.multiplier * MiningMultiplier + tool.effort) // hardness untested
         

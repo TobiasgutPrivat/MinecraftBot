@@ -27,6 +27,7 @@ export default abstract class Action {
     // Stops the action if it's running
     abstract stop(bot: mineflayer.Bot): void 
 
+    abstract isRunning(bot: mineflayer.Bot): boolean
 }
 
 // Maybe make simulation only for 1 tick -> 

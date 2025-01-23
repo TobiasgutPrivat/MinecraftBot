@@ -14,7 +14,8 @@ export default class ItemDrops extends Factor<Entity[]> {
         const entities = Object.values(botState.bot.entities);
         const itemDrops = entities.filter(entity => entity.type === 'other' && entity.entityType === 55)
         if (this.itemName) {
-            return itemDrops.filter(entity => (entity.metadata[8] as {itemId: number}).itemId === botState.bot.registry.itemsByName[this.itemName as string].id);
+            const itemId = botState.bot.registry.itemsByName[this.itemName as string].id
+            return itemDrops.filter(entity => (entity.metadata[8] as {itemId: number}).itemId === itemId);
         } else {
             return itemDrops
         }

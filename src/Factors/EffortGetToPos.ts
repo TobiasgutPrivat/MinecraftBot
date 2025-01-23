@@ -16,7 +16,7 @@ export default class EffortGetToPos extends Factor<number> {
     calculate(botState: BotState): number {
         const distance = botState.bot.entity.position.distanceTo(this.position)
         if (distance < this.proximity) return 0
-        botState.actionSuggestions.push(new GoToPos(this.position, this.proximity))
-        return distance / botState.bot.physics.sprintSpeed * 20 // in ticks
+        botState.actionSuggestions.push(new GoToPos(this.position, this.proximity - 1))
+        return distance * botState.bot.physics.sprintSpeed * 20 // in ticks, speed in time per block i think
     }
 }

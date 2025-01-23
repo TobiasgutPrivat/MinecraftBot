@@ -5,6 +5,7 @@ import CollectableItems from "./CollectableItems"
 import ItemCost from "./ItemCost"
 import MineableBlocks from "./MineableBlocks"
 import {Item} from "minecraft-data"
+import { inflate } from "zlib"
 
 export default class EffortItem extends Factor<number> {
     itemName: string
@@ -61,6 +62,7 @@ export default class EffortItem extends Factor<number> {
     }
 
     private EffortFromObtainWays(obtainWays: {effort: number, count: number}[], requiredCount: number): number { //Maybe Export
+        if (obtainWays.length === 0) return Infinity;
         // Calculate efficiency (effort per item) and sort options by it
         obtainWays.sort((a, b) => (a.effort / a.count) - (b.effort / b.count));
         
@@ -72,7 +74,7 @@ export default class EffortItem extends Factor<number> {
                 // Take all items from this option
                 totalEffort += effort; // Use full effort for this option
                 itemsCollected += count;
-            if (itemsCollected + count >= requiredCount) {
+            if (itemsCollected >= requiredCount) {
                 break;
             }
         }
