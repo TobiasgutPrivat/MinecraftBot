@@ -1,13 +1,15 @@
 import mineflayer from "mineflayer"
+import Bot from "./Bot"
+import Target from "./Target"
 
 export default abstract class Action {
+    //to determine if actions are the same action
     id: string
+    stopped = false
     
     constructor(id: string) {
         this.id = id
     }
-
-    //to determine if actions are the same action
 
     // Executes the action
     abstract run(bot: mineflayer.Bot): void;
@@ -15,22 +17,20 @@ export default abstract class Action {
     // Determines if the action can be executed
     abstract canRun(bot: mineflayer.Bot): boolean;
 
-    // Returns the effort required to execute this action in ticks
-    abstract getEffort(bot: mineflayer.Bot): number;
+    // Requirements to run this action
+    abstract getRequirements(bot: Bot): Target[];
 
-    // Simulates the action's effect without actually executing it
-    abstract simulate(bot: mineflayer.Bot): void;
+    // Returns the effort required to execute this action later
+    abstract getEffortFuture(bot: Bot): number;
 
-    // Resets the bot's state after simulation
-    abstract resetSimulation(bot: mineflayer.Bot): void;
+    // Returns the effort required to execute this action currently
+    abstract getEffortNow(bot: mineflayer.Bot): number;
 
     // Stops the action if it's running
-    abstract stop(bot: mineflayer.Bot): void 
+    protected abstract abortAction(bot: mineflayer.Bot): void 
 
-    abstract isRunning(bot: mineflayer.Bot): boolean
+    stop(bot: mineflayer.Bot): void {
+        this.abortAction(bot)
+        this.stopped = true
+    }
 }
-
-// Maybe make simulation only for 1 tick -> 
-// no effort calculation
-// considers state during actions
-// still able to do longer actions
