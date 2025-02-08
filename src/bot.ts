@@ -77,7 +77,7 @@ export default class Bot {
 
     private getActionsImportance(requirement: Target, importance: number): [Action, number][] {
         const actions: Action[] = []
-        for (const action of requirement.getActions(this)) {
+        for (const action of requirement.getActions(this.bot)) {
             actions.push(action)
         }
 
@@ -112,7 +112,7 @@ export default class Bot {
 
     private getRequirementEffortFuture(requirement: Target): number {
         var lowestEffort = 0
-        for (const action of requirement.getActions(this)) {
+        for (const action of requirement.getActions(this.bot)) {
             lowestEffort = Math.min(lowestEffort, this.getActionEffortFuture(action))
         }
         return lowestEffort
