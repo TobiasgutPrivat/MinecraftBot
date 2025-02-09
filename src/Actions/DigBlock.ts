@@ -1,43 +1,52 @@
 import Action from "../Action"
 import mineflayer from "mineflayer"
-import ItemCreater, { Item } from "prismarine-item"
-import {Block} from "prismarine-block"
 import Bot from "../Bot"
 import Target from "../Target"
 import OwnTool from "../Targets/OwnTool"
+import { REACHDISTANCE } from "../Constants"
 import { goals } from "mineflayer-pathfinder"
 
 export class DigBlock extends Action {
     block: string
+    goal: string
     //TODO maybe allow mining multiple blocks in one Action or let it use multiple actions
-    constructor(block: string) { //maybe change to Actual Block instance instead of string
+    constructor(block: string, goal: string) { //maybe change to Actual Block instance instead of string
         super("MineBlock" + block);
         this.block = block;
+        this.goal = goal;
     }
 
-    canRun(bot: mineflayer.Bot): boolean {
-        const mineBlock = bot.findBlock({ matching: bot.registry.blocksByName[this.block].id, maxDistance: 32 });
-        if (!mineBlock) return false
-        const standsOnGround = bot.entity.position.y % 0.5 === 0
-        return bot.canDigBlock(mineBlock) && standsOnGround
-    }
+    // canRun(bot: mineflayer.Bot): boolean {
+    //     const mineBlock = bot.findBlock({ matching: bot.registry.blocksByName[this.block].id, maxDistance: 32 });
+    //     if (!mineBlock) return false
+    //     const standsOnGround = bot.entity.position.y % 0.5 === 0
+    //     return bot.canDigBlock(mineBlock) && standsOnGround
+    // }
 
-    run(bot: mineflayer.Bot): void {
-        const mineBlock = bot.findBlock({ matching: bot.registry.blocksByName[this.block].id, maxDistance: 32 });
-        if (!mineBlock) return
-        
-        bot.pathfinder.goto(new goals.GoalBlock(mineBlock.position.x, mineBlock.position.y, mineBlock.position.z), () => {
+    run(bot: Bot): void {
+        const mineBlock = bot.bot.findBlock({ matching: bot.bot.registry.blocksByName[this.block].id, maxDistance: 32 });
+        if (!mineBlock) {
+            // explore world
+            return
+        }
+
+        bot.bot.pathfinder.goto(new goals.GoalNear(mineBlock.position.x, mineBlock.position.y, mineBlock.position.z, REACHDISTANCE)).then(() => {
+            if (!bot.bot.canDigBlock(mineBlock)) {
+                bot.bot.chat("Not able to dig block " + mineBlock.name + " at " + mineBlock.position.toString())
+                this.stopped = true
+            }
             //TODO: select proper tool
-            const digPromise = bot.dig(mineBlock, false);
-    
+            const digPromise = bot.bot.dig(mineBlock, false);
+            
             digPromise.then(() => this.stopped = true);
-    
+            
             digPromise.catch(() => { // important to catch promise-errors
                 this.stopped = true
-                bot.chat("Digging aborted")
+                bot.bot.chat("Digging failed for block " + mineBlock.name + " at " + mineBlock.position.toString())
             });
+        }).catch(() => {
+            this.stopped = true
         })
-        
     }
 
     getEffortNow(bot: mineflayer.Bot): number {
@@ -58,32 +67,11 @@ export class DigBlock extends Action {
         return 200
     }
 
-    getRequirements(bot: Bot): Target[] {
-        const harvestTools = bot.bot.registry.blocksByName[this.block].harvestTools
+    getRequirements(bot: mineflayer.Bot): Target[] {
+        const harvestTools = bot.registry.blocksByName[this.block].harvestTools
         if (harvestTools) {
             return [new OwnTool(Object.keys(harvestTools))]
         }
         return []
-    }
-
-    static getDrops(bot: mineflayer.Bot, block: Block): Item[] {
-        const ItemType = ItemCreater(bot.version)
-        if (block.drops) {
-            return block.drops.map(drop => {
-                if (typeof drop === "number") {
-                    return new ItemType(drop, 1)
-                } else {
-                    const max = drop.maxCount ?? 1
-                    const min = drop.minCount ?? 1
-                    if (typeof drop.drop === "number") {
-                        return new ItemType(drop.drop, (max + min) / 2)
-                    } else {
-                        return new ItemType(drop.drop.id, (max + min) / 2, drop.drop.metadata)
-                    }
-                }
-            })
-        } else {
-            return []
-        }
     }
 }

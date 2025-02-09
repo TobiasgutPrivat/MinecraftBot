@@ -1,14 +1,14 @@
 import { Bot } from "mineflayer";
 import Craft from "../Actions/Craft";
 import Action from "../Action";
-import OwnItem from "./OwnItem";
 import { Recipe } from "prismarine-recipe";
+import Target from "../Target";
 
-export default class OwnTool extends OwnItem {
+export default class OwnTool extends Target {
   private tools: string[];
 
   constructor(tools: string[]) {
-    super("");
+    super();
     this.tools = tools;
   }
 

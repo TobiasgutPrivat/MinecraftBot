@@ -1,8 +1,10 @@
 import mineflayer from 'mineflayer'
 import Action from '../Action'
-import { Recipe, RecipeItem } from 'prismarine-recipe';
+import { Recipe } from 'prismarine-recipe';
 import { REACHDISTANCE } from '../Constants';
-import ItemCreater, { Item } from "prismarine-item"
+import OwnItem from '../Targets/OwnItem';
+import Bot from '../Bot';
+import Target from '../Target';
 
 export default class Craft extends Action {
     recipe: Recipe
@@ -12,54 +14,36 @@ export default class Craft extends Action {
         this.recipe = recipe
         this.count = count
     }
-
-    canRun(bot: mineflayer.Bot): boolean {
+    run(bot: Bot): void {
         if (this.recipe.requiresTable) {
-            if (!bot.findBlock({ matching: bot.registry.blocksByName["crafting_table"].id , maxDistance: REACHDISTANCE})) return false
-        }
-        for (const item of this.recipe.delta) {
-            if (bot.inventory.count(item.id, null) < item.count) return false
-        }
-        return true
-    }
-
-    run(bot: mineflayer.Bot): void {
-        if (this.recipe.requiresTable) {
-            const crafting_table = bot.findBlock({ matching: bot.registry.blocksByName["crafting_table"].id, maxDistance: REACHDISTANCE })
+            const crafting_table = bot.bot.findBlock({ matching: bot.bot.registry.blocksByName["crafting_table"].id, maxDistance: REACHDISTANCE })
             if (!crafting_table) return
-            bot.craft(this.recipe, this.count, crafting_table)
+            bot.bot.craft(this.recipe, this.count, crafting_table)
         } else {
-            bot.craft(this.recipe, this.count)
+            bot.bot.craft(this.recipe, this.count)
         }
     }
 
-    getEffort(bot: mineflayer.Bot): number {
+    getEffortFuture(bot: Bot): number {
         return 0
     }
 
-    simulate(bot: mineflayer.Bot): void {
-        const ItemType = ItemCreater(bot.version)
-        
-        for (const item of this.recipe.delta.filter(item => item.count < 0)) {
-            bot.inventory.clear(item.id, -item.count * this.count)
-        }
-        bot.inventory.fillAndDump(new ItemType(this.recipe.result.id, this.recipe.result.count * this.count), 9, 45, true)
+    getEffortNow(bot: mineflayer.Bot): number {
+        return 0
     }
 
-    resetSimulation(bot: mineflayer.Bot): void {
-        const ItemType = ItemCreater(bot.version)
-
-        bot.inventory.clear(this.recipe.result.id, this.recipe.result.count * this.count)
+    getRequirements(bot: mineflayer.Bot): Target[] {
+        // if (this.recipe.requiresTable) {
+        //     return [new BlockNearby("crafting_table")]
+        // }
+        var requirements = []
         for (const item of this.recipe.delta.filter(item => item.count < 0)) {
-            bot.inventory.fillAndDump(new ItemType(item.id, -item.count * this.count), 9, 45, true)
+            requirements.push(new OwnItem(bot.registry.items[item.id].name, -item.count * this.count))
         }
+        return requirements
     }
 
-    stop(bot: mineflayer.Bot): void {
+    abortAction(bot: mineflayer.Bot): void {
         return
-    }
-
-    isRunning(bot: mineflayer.Bot): boolean {
-        return false
     }
 }
