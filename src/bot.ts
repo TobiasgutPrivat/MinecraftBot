@@ -34,32 +34,26 @@ export default class Bot {
             this.bot.pathfinder.setMovements(defaultMove);
             this.tpsScoreboard = new TpsScoreboard(this.bot);
 
-            this.bot.on("physicsTick", () => {
+            while (true) {
                 this.tpsScoreboard?.tick();
-                if (this.isEvaluating) return
-                this.isEvaluating = true
-                this.reEvaluateActions().then(() => this.isEvaluating = false)
-            })
+                this.reEvaluateActions();
+            }
         });
     }
 
-    private async reEvaluateActions(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            if (this.currentaction?.stopped) {
-                this.currentaction = undefined
-            }
+    private reEvaluateActions(): void {
+        if (this.currentaction?.stopped) {
+            this.currentaction = undefined
+        }
 
-            const bestAction = this.getBestAction()
+        const bestAction = this.getBestAction()
 
-            if (!this.currentaction || bestAction.id !== this.currentaction.id) {
-                this.currentaction?.stop(this.bot) //maybe not needed
-                this.currentaction = bestAction
-                this.bot.chat("Running " + this.currentaction.id)
-                this.currentaction.run(this) // test what happens if currentaction already changed, or just don't remove
-            }
-
-            resolve()
-        })
+        if (!this.currentaction || bestAction.id !== this.currentaction.id) {
+            this.currentaction?.stop(this.bot) //maybe not needed
+            this.currentaction = bestAction
+            this.bot.chat("Running " + this.currentaction.id)
+            this.currentaction.run(this) // test what happens if currentaction already changed, or just don't remove
+        }
     }
 
     private getBestAction(): Action {
