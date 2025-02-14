@@ -38,7 +38,7 @@ export default class Craft extends Action {
         // }
         var requirements = []
         for (const item of this.recipe.delta.filter(item => item.count < 0)) {
-            requirements.push(new OwnItem(bot.registry.items[item.id].name, -item.count * this.count))
+            requirements.push(new OwnItem(bot.registry.items[item.id].name, -item.count * this.count / this.recipe.result.count))
         }
         return requirements
     }
